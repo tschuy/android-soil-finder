@@ -1,0 +1,11 @@
+Todo:
+- implement home/start screen (while waiting for GPS)
+- catch no network errors
+- Google Location Services in addition to GPS?
+
+Done: 
+- get nice icon ("nice")
+- implement GPS accuracy switch
+- toast that notifies user that new profile had been loaded, in case it's the same
+- implement demo and query buttons
+- if user closes app stop trying for a signal

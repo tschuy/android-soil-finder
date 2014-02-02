@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Soil Finder</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_accuracy">Change Accuracy</string>
+    <string name="action_demo">Demo</string>
+    <string name="action_query">Query by Series</string>
+
+</resources>
