@@ -10,8 +10,8 @@
     <string name="accuracy_prefix">Accuracy is </string>
     <string name="accuracy_suffix"> meters</string>
 
-    <string name="loading_message">Loading soil profile&#8320;</string>
-    <string name="getting_location">Getting location&#8320;</string>
+    <string name="loading_message">Loading soil profile...</string>
+    <string name="getting_location">Getting location...</string>
     <string name="slider_header">Select Accuracy</string>
     <string name="slider_message">Minimum GPS accuracy in meters</string>
 
