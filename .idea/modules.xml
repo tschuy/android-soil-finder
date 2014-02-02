@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SoilFinder/SoilFinder.iml" filepath="$PROJECT_DIR$/SoilFinder/SoilFinder.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android-soilfinder.iml" filepath="$PROJECT_DIR$/android-soilfinder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SoilFinderProject-take2.iml" filepath="$PROJECT_DIR$/SoilFinderProject-take2.iml" />
     </modules>
   </component>
 </project>

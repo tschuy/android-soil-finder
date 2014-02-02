@@ -1,43 +1,22 @@
 package com.tschuy.soilfinder;
 
 import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.location.LocationListener;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.os.Build;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Context;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.http.SslError;
 import android.webkit.SslErrorHandler;
-
-import com.tschuy.soilfinder.R;
-import android.widget.NumberPicker;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.NumberPicker;
-import android.widget.Toast;
 import android.widget.EditText;
-import android.util.Log;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
@@ -46,12 +25,11 @@ public class MainActivity extends Activity {
     String webURL;
     LocationManager mlocManager;
     LocationListener mlocListener;
-    int accuracy = 50; // TODO: Allow user adjustable accuracy through actionbar item
+    int accuracy = 50;
     String soilName = "";
-    int pro = 0;
     private TextView text;
 
-    String html = "<html><body><h1>Loading local soil profile, please wait...</h1></body></html>";
+    String html = "<html><body></body></html>";
     String mime = "text/html";
     String encoding = "utf-8";
 
@@ -85,9 +63,9 @@ public class MainActivity extends Activity {
         @Override
         public void onLocationChanged(Location loc)
         {
-            Toast.makeText(getApplicationContext(), "Accuracy is " + loc.getAccuracy() + " meters", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), R.string.accuracy_prefix + String.valueOf(loc.getAccuracy()) + R.string.accuracy_suffix, Toast.LENGTH_SHORT).show();
             if (loc.getAccuracy() < accuracy) {
-                Toast.makeText(getApplicationContext(), "Loading soil profile...", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.loading_message, Toast.LENGTH_LONG).show();
                 webURL = "http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?iphone_user=1&lon=" + loc.getLongitude() + "&lat=" + loc.getLatitude();
                 myWebView.loadUrl(webURL);
                 mlocManager.removeUpdates(mlocListener);
@@ -115,8 +93,8 @@ public class MainActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                Toast.makeText(getApplicationContext(), "Getting location...", Toast.LENGTH_LONG).show();
-                mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+                Toast.makeText(getApplicationContext(), R.string.getting_location, Toast.LENGTH_LONG).show();
+                mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
                 return true;
 
             case R.id.action_accuracy:
@@ -126,15 +104,15 @@ public class MainActivity extends Activity {
 
                 seek.setProgress(100-accuracy);
 
-                accuracy_picker.setTitle("Select Accuracy");
-                accuracy_picker.setMessage("Minimum GPS accuracy in meters");
+                accuracy_picker.setTitle(R.string.slider_header);
+                accuracy_picker.setMessage(R.string.slider_message);
 
                 LinearLayout linear=new LinearLayout(this);
 
                 linear.setOrientation(1);
                 text=new TextView(this);
                 text.setPadding(10, 10, 10, 10);
-                text.setText("Current Accuracy: " + accuracy + " meters");
+                text.setText(getString(R.string.current_accuracy_prefix) + accuracy + getString(R.string.current_accuracy_suffix));
 
 
                 linear.addView(seek);
@@ -142,18 +120,14 @@ public class MainActivity extends Activity {
 
                 accuracy_picker.setView(linear);
 
-                accuracy_picker.setPositiveButton("Ok",new DialogInterface.OnClickListener()
+                accuracy_picker.setPositiveButton(R.string.ok,new DialogInterface.OnClickListener()
                 {
-                    public void onClick(DialogInterface dialog,int id)
-                    {
-                    }
+                    public void onClick(DialogInterface dialog,int id) {}
                 });
 
-                accuracy_picker.setNegativeButton("Cancel",new DialogInterface.OnClickListener()
+                accuracy_picker.setNegativeButton(R.string.cancel,new DialogInterface.OnClickListener()
                 {
-                    public void onClick(DialogInterface dialog,int id)
-                    {
-                    }
+                    public void onClick(DialogInterface dialog,int id) {}
                 });
 
                 seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -170,9 +144,9 @@ public class MainActivity extends Activity {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         // TODO Auto-generated method stub
-                        accuracy=-(progress-100);  //we can use the progress value of pro as anywhere
-                        accuracy_picker.setMessage("Accuracy in meters: " + Integer.toString(progress));
-                        text.setText("Current Accuracy: " + accuracy + " meters");
+                        accuracy=-(progress-100);
+                        accuracy_picker.setMessage(R.string.slider_var_text + Integer.toString(progress));
+                        text.setText(getString(R.string.current_accuracy_prefix) + accuracy + getString(R.string.current_accuracy_suffix));
                     }
                 });
 
@@ -181,19 +155,19 @@ public class MainActivity extends Activity {
 
             case R.id.action_query:
                 final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                alert.setTitle("Enter Soil Series Name");
+                alert.setTitle(R.string.soil_series_name);
 
                 // Set an EditText view to get user input
                 final EditText input = new EditText(this);
                 alert.setView(input);
 
-                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // Cancelled.
                     }
                 });
 
-                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                         // Do something with value!
@@ -208,7 +182,7 @@ public class MainActivity extends Activity {
                 return true;
 
             case R.id.action_demo:
-                Toast.makeText(getApplicationContext(), "Loading soil profile for Plymouth County, MA", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.example_profile, Toast.LENGTH_LONG).show();
                 webURL = "http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?iphone_user=1&lon=-70.8454&lat=41.93039";
                 myWebView.loadUrl(webURL);
                 mlocManager.removeUpdates(mlocListener);
