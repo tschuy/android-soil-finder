@@ -7,11 +7,11 @@
     <string name="action_demo">Demo</string>
     <string name="action_query">Query by Series</string>
 
-    <string name="accuracy_prefix">Accuracy is </string>
-    <string name="accuracy_suffix"> meters</string>
+    <string name="accuracy_prefix">Accuracy is\u0020</string>
+    <string name="accuracy_suffix">\u0020meters</string>
 
-    <string name="loading_message">Loading soil profile...</string>
-    <string name="getting_location">Getting location...</string>
+    <string name="loading_message">Loading soil profile\u2026</string>
+    <string name="getting_location">Getting location\u2026</string>
     <string name="slider_header">Select Accuracy</string>
     <string name="slider_message">Minimum GPS accuracy in meters</string>
 

@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
         public void onLocationChanged(Location loc)
         {
             // Output accuracy
-            Toast.makeText(getApplicationContext(), R.string.accuracy_prefix + String.valueOf(loc.getAccuracy()) + R.string.accuracy_suffix, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.accuracy_prefix) + loc.getAccuracy() + getString(R.string.accuracy_suffix), Toast.LENGTH_SHORT).show();
             if (loc.getAccuracy() < accuracy) {
                 // After GPS reaches adequate accuracy load details page and stop GPS
                 Toast.makeText(getApplicationContext(), R.string.loading_message, Toast.LENGTH_LONG).show();
@@ -99,6 +99,7 @@ public class MainActivity extends Activity {
         // Create SeekBar
         final AlertDialog.Builder accuracy_picker = new AlertDialog.Builder(this);
         SeekBar seek=new SeekBar(this);
+        seek.setPadding(50,0,50,0);
 
         seek.setProgress(100-accuracy);
 
@@ -109,7 +110,7 @@ public class MainActivity extends Activity {
 
         linear.setOrientation(1);
         text=new TextView(this);
-        text.setPadding(10, 10, 10, 10);
+        text.setPadding(45, 10, 10, 10);
         text.setText(getString(R.string.current_accuracy_prefix) + accuracy + getString(R.string.current_accuracy_suffix));
 
 
@@ -156,6 +157,7 @@ public class MainActivity extends Activity {
 
         // Set an EditText view to get user input
         final EditText input = new EditText(this);
+        input.setPadding(50,25,50,25);
         alert.setView(input);
 
         alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
