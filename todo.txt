@@ -1,5 +1,5 @@
 Todo:
-- implement home/start screen (while waiting for GPS)
+- home/start screen (while waiting for GPS)
 - catch no network errors
 - Google Location Services in addition to GPS?
 
