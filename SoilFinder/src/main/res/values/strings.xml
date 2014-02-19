@@ -2,10 +2,12 @@
 <resources>
 
     <string name="app_name">Soil Finder</string>
-    <string name="action_refresh">Refresh</string>
+    <string name="action_gps">GPS Location</string>
     <string name="action_accuracy">Change Accuracy</string>
-    <string name="action_demo">Demo</string>
+    <string name="action_search">Search</string>
     <string name="action_query">Query by Series</string>
+    <string name="action_coordinates">Search by Coordinates</string>
+    <string name="action_about">About</string>
 
     <string name="accuracy_prefix">Accuracy is\u0020</string>
     <string name="accuracy_suffix">\u0020meters</string>
@@ -24,5 +26,14 @@
     <string name="slider_var_text">Accuracy in meters: </string>
     <string name="soil_series_name">Enter Soil Series Name</string>
     <string name="example_profile">Loading soil profile for Plymouth County, MA</string>
+
+    <string name="location_name">Search by Location</string>
+    <string name="loading_location">Loading location...</string>
+
+    <string name="query_coordinates">Enter Coordinates</string>
+    <string name="too_few_commas">Error: Please enter two coordinates.</string>
+    <string name="too_many_commas">Error: Too many commas.</string>
+    <string name="invalid_commas">Error: Coordinates can not begin or end with a comma.</string>
+    <string name="coords_message">Input coordinates as comma-separated pair (ex: -123.07,45.083)</string>
 
 </resources>

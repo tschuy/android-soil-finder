@@ -1,10 +1,13 @@
 Todo:
-- home/start screen (while waiting for GPS)
+- Search button/JSON Google location parsing
+- Home screen -- Google Maps w/ KML?
 - catch no network errors
 - Google Location Services in addition to GPS?
+- Update icon
 
 Done: 
 - get nice icon ("nice")
+- Search by coordinates crashes if there are no numbers on each side of the comma
 - implement GPS accuracy switch
 - toast that notifies user that new profile had been loaded, in case it's the same
 - implement demo and query buttons

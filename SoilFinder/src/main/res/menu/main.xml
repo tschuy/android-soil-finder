@@ -2,25 +2,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity" >
 
-    <item android:id="@+id/action_refresh"
-        android:icon="@drawable/ic_action_refresh"
-        android:title="@string/action_refresh"
+    <item android:id="@+id/action_gps"
+        android:icon="@drawable/ic_action_location_found"
+        android:title="@string/action_gps"
         android:orderInCategory="100"
         android:showAsAction="always"
     />
 
-    <item android:id="@+id/action_demo"
-        android:title="@string/action_demo"
+    <item android:id="@+id/action_search"
+        android:icon="@drawable/ic_action_search"
+        android:title="@string/action_search"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="always" />
 
     <item android:id="@+id/action_accuracy"
         android:title="@string/action_accuracy"
         android:orderInCategory="100"
         android:showAsAction="never" />
 
+    <item android:id="@+id/action_coordinates"
+        android:title="@string/action_coordinates"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
     <item android:id="@+id/action_query"
         android:title="@string/action_query"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
+    <item android:id="@+id/action_about"
+        android:title="@string/action_about"
         android:orderInCategory="100"
         android:showAsAction="never" />
 

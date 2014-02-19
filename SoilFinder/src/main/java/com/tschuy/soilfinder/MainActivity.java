@@ -19,6 +19,30 @@ import android.webkit.SslErrorHandler;
 import android.widget.EditText;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.text.method.DigitsKeyListener;
+
+// Used for downloading and parsing the search JSON
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
@@ -34,6 +58,9 @@ public class MainActivity extends Activity {
     String html = "<html><body></body></html>";
     String mime = "text/html";
     String encoding = "utf-8";
+    String jsonURL = "http://maps.google.com/maps/api/geocode/json?address=null&sensor=false";
+
+    // Main basic code functions
 
     @Override
     public void onCreate(Bundle myInstance) {
@@ -73,7 +100,7 @@ public class MainActivity extends Activity {
             if (loc.getAccuracy() < accuracy) {
                 // After GPS reaches adequate accuracy load details page and stop GPS
                 Toast.makeText(getApplicationContext(), R.string.loading_message, Toast.LENGTH_LONG).show();
-                myWebView.loadUrl("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?iphone_user=1&lon=" + loc.getLongitude() + "&lat=" + loc.getLatitude());
+                myWebView.loadUrl("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=" + loc.getLongitude() + "&lat=" + loc.getLatitude());
                 mlocManager.removeUpdates(mlocListener);
             }
         }
@@ -84,7 +111,11 @@ public class MainActivity extends Activity {
         public void onStatusChanged(String provider, int status, Bundle extras){};
     }
 
-    // Everything below this line is for the action bar
+    // JSON downloading and parsing
+
+
+
+    // Make the action bar buttons do stuff
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -157,7 +188,7 @@ public class MainActivity extends Activity {
 
         // Set an EditText view to get user input
         final EditText input = new EditText(this);
-        input.setPadding(50,25,50,25);
+        input.setPadding(50, 25, 50, 25);
         alert.setView(input);
 
         alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -183,33 +214,135 @@ public class MainActivity extends Activity {
         mlocManager.removeUpdates(mlocListener);
     }
 
+    public void searchByPlace() {
+
+        // Alert text box
+        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle(R.string.location_name);
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        input.setPadding(50,25,50,25);
+        alert.setView(input);
+
+        alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Cancelled.
+            }
+        });
+
+        alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                // this if catches a null input
+                if (input.getText().length() != 0) {
+                    //String coordinates = readJSON(input.getText().toString());
+                    //webURL = ("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=" + (coordinates.split("\\,")[0]) + "&lat=" + (coordinates.split("\\,")[1]));
+                    //myWebView.loadUrl(webURL);
+                    Toast.makeText(getApplicationContext(), R.string.loading_location, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), input.getText().toString(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        mlocManager.removeUpdates(mlocListener);
+        alert.show();
+    }
+
+    public void queryCoordinates() {
+
+        // Alert text box
+        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle(R.string.query_coordinates);
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        input.setPadding(50,25,50,25);
+        alert.setMessage(R.string.coords_message);
+        alert.setView(input);
+        input.setKeyListener(DigitsKeyListener.getInstance("0123456789,.-"));
+
+        alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Cancelled.
+            }
+        });
+
+        alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                // Go to webpage
+                // this if catches a null input
+
+                if (input.getText().length() != 0) {
+                    int commas = 0;
+                    String coordinates = input.getText().toString();
+                    for (int i = 0; i < coordinates.length(); i++) {
+                        if (coordinates.charAt(i) == ',') commas++;
+                    }
+                    if  (coordinates.charAt(0) == ',' || coordinates.charAt(coordinates.length()-1) == ',') commas = -1;
+
+                    if (commas == 1) {
+                        webURL = ("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=" + ((input.getText().toString()).split("\\,")[0]) + "&lat=" + ((input.getText().toString()).split("\\,")[1]));
+                        myWebView.loadUrl(webURL);
+                    }
+                    else if (commas > 1) {
+                        Toast.makeText(getApplicationContext(), R.string.too_many_commas, Toast.LENGTH_LONG).show();
+                    }
+                    else if (commas < 0) {
+                        Toast.makeText(getApplicationContext(), R.string.invalid_commas, Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), R.string.too_few_commas, Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        });
+
+        alert.show();
+        mlocManager.removeUpdates(mlocListener);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
-            case R.id.action_refresh:
+            case R.id.action_gps:
                 // Re-enable GPS searching
                 Toast.makeText(getApplicationContext(), R.string.getting_location, Toast.LENGTH_LONG).show();
                 mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+                return true;
+
+            case R.id.action_search:
+                searchByPlace();
                 return true;
 
             case R.id.action_accuracy:
                 accuracySelector();
                 return true;
 
+            case R.id.action_coordinates:
+                queryCoordinates();
+                return true;
+
             case R.id.action_query:
                 querySoil();
                 return true;
 
+            case R.id.action_about:
+                return true;
+
+            /*
             case R.id.action_demo:
                 // Load soil profile as example
                 Toast.makeText(getApplicationContext(), R.string.example_profile, Toast.LENGTH_LONG).show();
-                webURL = "http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?iphone_user=1&lon=-70.8454&lat=41.93039";
+                webURL = "http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=-70.8454&lat=41.93039";
                 myWebView.loadUrl(webURL);
                 mlocManager.removeUpdates(mlocListener);
                 return true;
+                */
         }
         return super.onOptionsItemSelected(item);
     }
