@@ -1,10 +1,9 @@
 Soil Finder for Android
 ==================
 
-GPS-based access to USDA-NRCS soil profile data. Idea from [SoilWeb](https://play.google.com/store/apps/details?id=casoilresource.apps.soilweb) app. Took one look at it and decided to try to make a nicer one!
+Access to USDA-NRCS soil profile data. Idea from [SoilWeb](https://play.google.com/store/apps/details?id=casoilresource.apps.soilweb) app.
 
-To-do:
-
- -   home/start screen (while waiting for GPS)
- -   catch no network errors
- -   Google Location Services in addition to GPS?
+Use:
+ -   Tap location on map to get data on that area.
+ -   Press GPS button to load data for your location.
+ -   Type in paired coordinates to get data for specific location.
