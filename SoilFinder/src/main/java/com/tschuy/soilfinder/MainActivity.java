@@ -1,12 +1,17 @@
 package com.tschuy.soilfinder;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.text.method.DigitsKeyListener;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebViewFragment;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -19,32 +24,13 @@ import android.webkit.SslErrorHandler;
 import android.widget.EditText;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.text.method.DigitsKeyListener;
 
-// Used for downloading and parsing the search JSON
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.ListActivity;
-import android.app.ProgressDialog;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
-
-public class MainActivity extends Activity {
+public class MainActivity extends Activity
+        implements GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
 
     // Declare initial variables/strings/views, etc
     public WebView myWebView;
@@ -54,36 +40,64 @@ public class MainActivity extends Activity {
     int accuracy = 50;
     String soilName = "";
     private TextView text;
-
-    String html = "<html><body></body></html>";
-    String mime = "text/html";
-    String encoding = "utf-8";
-    String jsonURL = "http://maps.google.com/maps/api/geocode/json?address=null&sensor=false";
+    private GoogleMap myMap;
 
     // Main basic code functions
 
+    // Called on Activity creation/app startup
     @Override
     public void onCreate(Bundle myInstance) {
         super.onCreate(myInstance);
         setContentView(R.layout.activity_main);
 
-        // Start webview
-        myWebView=(WebView)findViewById(R.id.webview);
-        myWebView.setWebViewClient(new SSLTolerantWebViewClient());
-        myWebView.loadDataWithBaseURL(null, html, mime, encoding, null);
+        FragmentManager myFragmentManager = getFragmentManager();
+        MapFragment myMapFragment
+                = (MapFragment)myFragmentManager.findFragmentById(R.id.map);
+        myMap = myMapFragment.getMap();
 
-        // Start requesting GPS data
-        mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        mlocListener = new MyLocationListener();
-        mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+        myMap.setMyLocationEnabled(true);
+
+        myMap.setOnMapClickListener(this);
+        myMap.setOnMapLongClickListener(this);
+        myMap.setOnMarkerDragListener(this);
     }
 
+    // Called when Activity is quit/Home button is pressed
     public void onStop(){
         // On home button stop GPS
-        super.onStop();
         mlocManager.removeUpdates(mlocListener);
+        super.onStop();
     }
 
+    // Google Map functions
+
+    @Override
+    public void onMapLongClick(LatLng point) {}
+    @Override
+    public void onMarkerDrag(Marker marker) {}
+    @Override
+    public void onMarkerDragEnd(Marker marker) {}
+    @Override
+    public void onMarkerDragStart(Marker marker) {}
+
+    // Call loadCoordinates when location on map is tapped
+    @Override
+    public void onMapClick(LatLng point) {
+        loadCoordinates(point);
+    }
+
+    // Load WebView fragment with given coordinates
+    public void loadCoordinates(LatLng point) {
+        setContentView(R.layout.activity_web_browse);
+        myWebView = (WebView)findViewById(R.id.webview);
+
+        // TODO: Put fragment onto back stack, enable up navigation
+
+        Toast.makeText(getApplicationContext(), R.string.loading_message, Toast.LENGTH_LONG).show();
+        myWebView.loadUrl("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=" + point.longitude + "&lat=" + point.latitude);
+    }
+
+    // SSL tolerance for Soil Query
     private class SSLTolerantWebViewClient extends WebViewClient {
         @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
@@ -91,6 +105,8 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Listen for location updates
+    // Upon location fix, call loadCoordinates
     public class MyLocationListener implements LocationListener {
         @Override
         public void onLocationChanged(Location loc)
@@ -100,7 +116,10 @@ public class MainActivity extends Activity {
             if (loc.getAccuracy() < accuracy) {
                 // After GPS reaches adequate accuracy load details page and stop GPS
                 Toast.makeText(getApplicationContext(), R.string.loading_message, Toast.LENGTH_LONG).show();
-                myWebView.loadUrl("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=" + loc.getLongitude() + "&lat=" + loc.getLatitude());
+                //myWebView.loadUrl("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=" + loc.getLongitude() + "&lat=" + loc.getLatitude());
+                // pass lat and long to loadCoordinates
+                LatLng userCoordinates = new LatLng(loc.getLatitude(), loc.getLongitude());
+                loadCoordinates(userCoordinates);
                 mlocManager.removeUpdates(mlocListener);
             }
         }
@@ -111,12 +130,9 @@ public class MainActivity extends Activity {
         public void onStatusChanged(String provider, int status, Bundle extras){};
     }
 
-    // JSON downloading and parsing
-
-
-
     // Make the action bar buttons do stuff
 
+    // Add actionbar items
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -125,6 +141,7 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    // GPS accuracy guage
     public void accuracySelector() {
 
         // Create SeekBar
@@ -180,6 +197,8 @@ public class MainActivity extends Activity {
 
     }
 
+    // Query soil by Series name
+    // TODO: Make the webView! Currently not working
     public void querySoil() {
 
         // Alert text box
@@ -205,15 +224,17 @@ public class MainActivity extends Activity {
                 if (input.getText().length() != 0) {
                     soilName = (input.getText().toString()).toUpperCase();
                     webURL = "https://soilseries.sc.egov.usda.gov/OSD_Docs/" + soilName.charAt(0) + "/" + soilName + ".html";
-                    myWebView.loadUrl(webURL);
+                    //myWebView.loadUrl(webURL);
                 }
             }
         });
 
         alert.show();
-        mlocManager.removeUpdates(mlocListener);
     }
 
+    // Search by place name
+    // TODO: Use Google Geocoder API (part of Google Play Services) to get coordinates
+    // Currently NOT WORKING
     public void searchByPlace() {
 
         // Alert text box
@@ -244,11 +265,20 @@ public class MainActivity extends Activity {
                 }
             }
         });
-
-        mlocManager.removeUpdates(mlocListener);
         alert.show();
     }
 
+    // GPS button
+    // Starts location listening
+    public void gpsLocation() {
+        mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        mlocListener = new MyLocationListener();
+        mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+    }
+
+    // Query Coordinates
+    // Prompts user for coordinates, then calls loadCoordinates() if valid
+    // TODO: Check for extraneous minus signs!
     public void queryCoordinates() {
 
         // Alert text box
@@ -283,8 +313,8 @@ public class MainActivity extends Activity {
                     if  (coordinates.charAt(0) == ',' || coordinates.charAt(coordinates.length()-1) == ',') commas = -1;
 
                     if (commas == 1) {
-                        webURL = ("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=" + ((input.getText().toString()).split("\\,")[0]) + "&lat=" + ((input.getText().toString()).split("\\,")[1]));
-                        myWebView.loadUrl(webURL);
+                        LatLng point = new LatLng(Double.valueOf((input.getText().toString()).split("\\,")[1]),Double.valueOf((input.getText().toString()).split("\\,")[0]));
+                        loadCoordinates(point);
                     }
                     else if (commas > 1) {
                         Toast.makeText(getApplicationContext(), R.string.too_many_commas, Toast.LENGTH_LONG).show();
@@ -300,9 +330,9 @@ public class MainActivity extends Activity {
         });
 
         alert.show();
-        mlocManager.removeUpdates(mlocListener);
     }
 
+    // Actionbar item selection
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -310,9 +340,9 @@ public class MainActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_gps:
-                // Re-enable GPS searching
+                // (Re-)enable GPS searching
                 Toast.makeText(getApplicationContext(), R.string.getting_location, Toast.LENGTH_LONG).show();
-                mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+                gpsLocation();
                 return true;
 
             case R.id.action_search:
@@ -332,17 +362,8 @@ public class MainActivity extends Activity {
                 return true;
 
             case R.id.action_about:
+                // TODO: About screen!
                 return true;
-
-            /*
-            case R.id.action_demo:
-                // Load soil profile as example
-                Toast.makeText(getApplicationContext(), R.string.example_profile, Toast.LENGTH_LONG).show();
-                webURL = "http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=-70.8454&lat=41.93039";
-                myWebView.loadUrl(webURL);
-                mlocManager.removeUpdates(mlocListener);
-                return true;
-                */
         }
         return super.onOptionsItemSelected(item);
     }
