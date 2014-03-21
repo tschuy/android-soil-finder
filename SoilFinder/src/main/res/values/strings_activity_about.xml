@@ -12,7 +12,7 @@
     <string name="settings_version_title">Version</string>
     <string name="settings_version_number">in-dev 2014-03-21</string>
 
-    <string name="settings_data_source">Data from NRCS and hosted by UC Davis.</string>
+    <string name="settings_data_source">Soil profiles from NRCS and hosted by UC Davis for their SoilWeb app. Soil series descriptions from the Official Soil Series Descriptions site from the USDA.</string>
     <string name="settings_data_title">Data Sources</string>
 
     <string name="settings_idea_source">The idea for this app comes from the original SoilWeb app, developed and released by UC Davis\' Soil Resource Laboratory in 2011.</string>

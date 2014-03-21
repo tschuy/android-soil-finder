@@ -10,7 +10,7 @@
             android:summary="@string/settings_self_title"
             android:title="@string/settings_author_title" />
         <Preference
-            android:summary="@string/settings_version_number"
+            android:key="version"
             android:title="@string/settings_version_title" />
     </PreferenceCategory>
 

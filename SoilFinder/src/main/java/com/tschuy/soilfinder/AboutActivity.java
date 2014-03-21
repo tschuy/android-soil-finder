@@ -3,6 +3,8 @@ package com.tschuy.soilfinder;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -97,7 +99,14 @@ public class AboutActivity extends PreferenceActivity {
         // In the simplified UI, fragments are not used at all and we instead
         // use the older PreferenceActivity APIs.
         addPreferencesFromResource(R.xml.pref_source);
+
         showOpenSourceLicenses();
+        try {
+            final PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            findPreference("version").setSummary(packageInfo.versionName);
+        } catch (final PackageManager.NameNotFoundException e) {
+            findPreference("version").setSummary("?");
+        }
     }
 
     private void showOpenSourceLicenses() {
