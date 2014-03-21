@@ -1,0 +1,25 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/settings_about_category" >
+        <Preference
+            android:summary="@string/settings_data_source"
+            android:title="@string/settings_data_title" />
+        <Preference
+            android:summary="@string/settings_idea_source"
+            android:title="@string/settings_idea_title" />
+        <Preference
+            android:summary="@string/settings_self_title"
+            android:title="@string/settings_author_title" />
+        <Preference
+            android:summary="@string/settings_version_number"
+            android:title="@string/settings_version_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_source_code" >
+        <Preference
+            android:summary="@string/settings_licensing_text"
+            android:title="@string/settings_licensing_title" />
+        <Preference
+            android:key="source_code_link"
+            android:title="@string/settings_source_link" />
+    </PreferenceCategory>
+</PreferenceScreen>

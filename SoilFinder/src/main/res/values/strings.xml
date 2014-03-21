@@ -28,7 +28,9 @@
     <string name="too_many_commas">Error: Too many commas.</string>
     <string name="invalid_commas">Error: Coordinates can not begin or end with a comma.</string>
     <string name="coords_message">Input coordinates as comma-separated pair (ex: -123.07,45.083)</string>
-    <string name="title_activity_web_browse">Soil Finder</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="invalid_coordinate">Invalid coordinates.</string>
+    <string name="settings_text">Test string</string>
+    <string name="pref_header_notifications">missing value</string>
 </resources>

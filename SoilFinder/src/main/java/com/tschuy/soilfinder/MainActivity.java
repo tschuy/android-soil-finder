@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.text.method.DigitsKeyListener;
@@ -33,10 +34,11 @@ public class MainActivity extends Activity
         implements GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
 
     // Declare initial variables/strings/views, etc
-    public WebView myWebView;
-    String webURL;
+    public WebViewFragment myWebViewFragment = new WebViewFragment();
+
     LocationManager mlocManager;
     LocationListener mlocListener;
+
     int accuracy = 50;
     String soilName = "";
     private TextView text;
@@ -53,7 +55,11 @@ public class MainActivity extends Activity
         FragmentManager myFragmentManager = getFragmentManager();
         MapFragment myMapFragment
                 = (MapFragment)myFragmentManager.findFragmentById(R.id.map);
+
         myMap = myMapFragment.getMap();
+
+        CameraUpdate initialPosition = CameraUpdateFactory.newLatLngZoom(new LatLng(39.746859, -101.742427), 3);
+        myMap.moveCamera(initialPosition);
 
         myMap.setMyLocationEnabled(true);
 
@@ -65,8 +71,16 @@ public class MainActivity extends Activity
     // Called when Activity is quit/Home button is pressed
     public void onStop(){
         // On home button stop GPS
-        mlocManager.removeUpdates(mlocListener);
+        //mlocManager.removeUpdates(mlocListener);
         super.onStop();
+    }
+
+    @Override
+    public void onBackPressed(){
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
+        } else {
+            getFragmentManager().popBackStack();
+        }
     }
 
     // Google Map functions
@@ -83,26 +97,32 @@ public class MainActivity extends Activity
     // Call loadCoordinates when location on map is tapped
     @Override
     public void onMapClick(LatLng point) {
+        point = new LatLng(Math.round(point.latitude * 10000.0) / 10000.0, Math.round(point.longitude * 10000.0) / 10000.0);
         loadCoordinates(point);
     }
 
-    // Load WebView fragment with given coordinates
+    // calls makeWebview with string generated from LatLng point
     public void loadCoordinates(LatLng point) {
-        setContentView(R.layout.activity_web_browse);
-        myWebView = (WebView)findViewById(R.id.webview);
-
-        // TODO: Put fragment onto back stack, enable up navigation
-
-        Toast.makeText(getApplicationContext(), R.string.loading_message, Toast.LENGTH_LONG).show();
-        myWebView.loadUrl("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=" + point.longitude + "&lat=" + point.latitude);
+        //setContentView(R.layout.activity_web_browse);
+        makeWebview(
+                "http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon="
+                        + point.longitude + "&lat=" + point.latitude);
     }
 
-    // SSL tolerance for Soil Query
-    private class SSLTolerantWebViewClient extends WebViewClient {
-        @Override
-        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            handler.proceed(); // Ignore SSL certificate errors for name queries
-        }
+    // Loads WebView fragment with given URL
+    public void makeWebview(String webURL){
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.map, myWebViewFragment)
+                .addToBackStack(null)
+                .commit(); // Replaces current fragment with the webview
+        fragmentManager.executePendingTransactions();
+
+        Toast.makeText(getApplicationContext(), R.string.loading_message, Toast.LENGTH_LONG).show();
+        myWebViewFragment.getWebView().setWebViewClient(new SSLTolerantWebViewClient());
+        myWebViewFragment.getWebView().loadUrl(webURL);
     }
 
     // Listen for location updates
@@ -112,15 +132,20 @@ public class MainActivity extends Activity
         public void onLocationChanged(Location loc)
         {
             // Output accuracy
-            Toast.makeText(getApplicationContext(), getString(R.string.accuracy_prefix) + loc.getAccuracy() + getString(R.string.accuracy_suffix), Toast.LENGTH_SHORT).show();
             if (loc.getAccuracy() < accuracy) {
                 // After GPS reaches adequate accuracy load details page and stop GPS
-                Toast.makeText(getApplicationContext(), R.string.loading_message, Toast.LENGTH_LONG).show();
-                //myWebView.loadUrl("http://casoilresource.lawr.ucdavis.edu/soil_web/list_components.php?lon=" + loc.getLongitude() + "&lat=" + loc.getLatitude());
+                Toast.makeText(getApplicationContext(), R.string.loading_message,
+                        Toast.LENGTH_LONG).show();
+
                 // pass lat and long to loadCoordinates
                 LatLng userCoordinates = new LatLng(loc.getLatitude(), loc.getLongitude());
                 loadCoordinates(userCoordinates);
                 mlocManager.removeUpdates(mlocListener);
+            }
+            else {
+                Toast.makeText(getApplicationContext(), getString(R.string.accuracy_prefix)
+                        + loc.getAccuracy() + getString(R.string.accuracy_suffix),
+                        Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -141,7 +166,7 @@ public class MainActivity extends Activity
         return true;
     }
 
-    // GPS accuracy guage
+    // GPS accuracy gauge
     public void accuracySelector() {
 
         // Create SeekBar
@@ -198,7 +223,6 @@ public class MainActivity extends Activity
     }
 
     // Query soil by Series name
-    // TODO: Make the webView! Currently not working
     public void querySoil() {
 
         // Alert text box
@@ -223,8 +247,8 @@ public class MainActivity extends Activity
                 // this if catches a null input
                 if (input.getText().length() != 0) {
                     soilName = (input.getText().toString()).toUpperCase();
-                    webURL = "https://soilseries.sc.egov.usda.gov/OSD_Docs/" + soilName.charAt(0) + "/" + soilName + ".html";
-                    //myWebView.loadUrl(webURL);
+                    makeWebview("https://soilseries.sc.egov.usda.gov/OSD_Docs/" +
+                            soilName.charAt(0) + "/" + soilName + ".html");
                 }
             }
         });
@@ -276,9 +300,17 @@ public class MainActivity extends Activity
         mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
     }
 
+    // Takes string (such as -45.40) and checks to see if it contains -'s in the wrong places
+    public boolean isValidCoordinate(String coordinate) {
+        // Skip 0 as 0 is allowed to be a minus
+        for(int i = 1; i < coordinate.length(); i++) {
+            if (coordinate.charAt(i) == '-') return false;
+        }
+        return true;
+    }
+
     // Query Coordinates
     // Prompts user for coordinates, then calls loadCoordinates() if valid
-    // TODO: Check for extraneous minus signs!
     public void queryCoordinates() {
 
         // Alert text box
@@ -310,20 +342,31 @@ public class MainActivity extends Activity
                     for (int i = 0; i < coordinates.length(); i++) {
                         if (coordinates.charAt(i) == ',') commas++;
                     }
-                    if  (coordinates.charAt(0) == ',' || coordinates.charAt(coordinates.length()-1) == ',') commas = -1;
+                    if  (coordinates.charAt(0) == ',' ||
+                            coordinates.charAt(coordinates.length()-1) == ',') commas = -1;
 
                     if (commas == 1) {
-                        LatLng point = new LatLng(Double.valueOf((input.getText().toString()).split("\\,")[1]),Double.valueOf((input.getText().toString()).split("\\,")[0]));
-                        loadCoordinates(point);
+                        String coord1 = (input.getText().toString()).split("\\,")[1];
+                        String coord2 = (input.getText().toString()).split("\\,")[0];
+
+                        if (isValidCoordinate(coord1) && isValidCoordinate(coord2)) {
+                            LatLng point = new LatLng(Double.valueOf(coord1), Double.valueOf(coord2));
+                            loadCoordinates(point);
+                        }
+                        else Toast.makeText(getApplicationContext(),
+                                R.string.invalid_coordinate, Toast.LENGTH_LONG).show();
                     }
                     else if (commas > 1) {
-                        Toast.makeText(getApplicationContext(), R.string.too_many_commas, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),
+                                R.string.too_many_commas, Toast.LENGTH_LONG).show();
                     }
                     else if (commas < 0) {
-                        Toast.makeText(getApplicationContext(), R.string.invalid_commas, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),
+                                R.string.invalid_commas, Toast.LENGTH_LONG).show();
                     }
                     else {
-                        Toast.makeText(getApplicationContext(), R.string.too_few_commas, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),
+                                R.string.too_few_commas, Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -341,7 +384,8 @@ public class MainActivity extends Activity
         switch (item.getItemId()) {
             case R.id.action_gps:
                 // (Re-)enable GPS searching
-                Toast.makeText(getApplicationContext(), R.string.getting_location, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),
+                        R.string.getting_location, Toast.LENGTH_LONG).show();
                 gpsLocation();
                 return true;
 
@@ -362,7 +406,13 @@ public class MainActivity extends Activity
                 return true;
 
             case R.id.action_about:
-                // TODO: About screen!
+                Intent intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
+                return true;
+
+            case android.R.id.home:
+                getFragmentManager().popBackStack();
+                getActionBar().setDisplayHomeAsUpEnabled(false);
                 return true;
         }
         return super.onOptionsItemSelected(item);

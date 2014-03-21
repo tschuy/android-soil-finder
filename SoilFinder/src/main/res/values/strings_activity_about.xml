@@ -1,0 +1,23 @@
+<resources>
+    <string name="title_activity_about">Soil Finder</string>
+    <string name="settings_about_category">About</string>
+    <string name="settings_about_soilfinder">About</string>
+
+    <string name="settings_source_code">Source Code</string>
+    <string name="settings_source_link">Tap here for source code</string>
+
+    <string name="settings_self_title">Evan Tschuy</string>
+    <string name="settings_author_title">Author</string>
+
+    <string name="settings_version_title">Version</string>
+    <string name="settings_version_number">in-dev 2014-03-21</string>
+
+    <string name="settings_data_source">Data from NRCS and hosted by UC Davis.</string>
+    <string name="settings_data_title">Data Sources</string>
+
+    <string name="settings_idea_source">The idea for this app comes from the original SoilWeb app, developed and released by UC Davis\' Soil Resource Laboratory in 2011.</string>
+    <string name="settings_idea_title">Inspiration</string>
+
+    <string name="settings_licensing_text">Soil Finder is released under the GPL v2 license.</string>
+    <string name="settings_licensing_title">App Licensing</string>
+</resources>
