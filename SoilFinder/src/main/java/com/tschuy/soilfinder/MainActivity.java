@@ -101,6 +101,10 @@ public class MainActivity extends Activity
         myMap.setOnMapClickListener(this);
         myMap.setOnMapLongClickListener(this);
         myMap.setOnMarkerDragListener(this);
+
+        // TODO: Get rid of this terrible hack
+        gpsLocation();
+        stopLocationUpdates();
     }
 
     // Called when Activity is quit/Home button is pressed
