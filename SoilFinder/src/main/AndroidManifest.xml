@@ -43,7 +43,7 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBvM-AUHz5Ht2EqqT2Nt1SnDLyqhDPv7wk" />
+            android:value="INSERT YOUR KEY HERE" />
         <!-- Debug key -->
         <activity
             android:name="com.tschuy.soilfinder.AboutActivity"
